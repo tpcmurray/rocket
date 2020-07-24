@@ -4,33 +4,29 @@ public class Rocket : MonoBehaviour
 {
     private Rigidbody rocketRB;
     private AudioSource thrustSound;
-    private MeshRenderer flame;
-    private Light flameLight;
+    private ParticleSystem flame;
+    private Light rocketLight;
 
     // Start is called before the first frame update
     void Start()
     {
         rocketRB = GetComponent<Rigidbody>();
         thrustSound = GetComponent<AudioSource>();
-        MeshRenderer[] items = GetComponentsInChildren<MeshRenderer>();
+        rocketLight = GetComponent<Light>();
+        flame = GetChildComponentByName<ParticleSystem>("Flame");
+        rocketLight = GetChildComponentByName<Light>("RocketLight");
+    }
 
-        foreach (MeshRenderer item in items)
+    private T GetChildComponentByName<T>(string name) where T : Component
+    {
+        foreach (T component in GetComponentsInChildren<T>(true))
         {
-            if (item.name.Equals("Flame"))
+            if (component.gameObject.name == name)
             {
-                flame = item;
+                return component;
             }
         }
-
-        Light[] lights = GetComponentsInChildren<Light>();
-
-        foreach (Light light in lights)
-        {
-            if (light.name.Equals("Flame"))
-            {
-                flameLight = light;
-            }
-        }
+        return null;
     }
 
     // Update is called once per frame
@@ -40,22 +36,22 @@ public class Rocket : MonoBehaviour
     }
 
     private void ProcessInput()
-    {
+    {     
         if (Input.GetKey(KeyCode.Space))
         {
             rocketRB.AddRelativeForce(Vector3.up);
             if (!thrustSound.isPlaying)
             {
                 thrustSound.Play();
-                flame.enabled = true;
-                flameLight.enabled = true;
+                flame.Play();
+                rocketLight.enabled = true;
             }
         }
         else
         {
             thrustSound.Stop();
-            flame.enabled = false;
-            flameLight.enabled = false;
+            flame.Stop();
+            rocketLight.enabled = false;
         }
 
         rocketRB.freezeRotation = true;
